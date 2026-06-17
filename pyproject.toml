@@ -1,0 +1,31 @@
+[build-system]
+requires = ["hatchling>=1.25.0"]
+build-backend = "hatchling.build"
+
+[project]
+name = "openbb-snaptrade"
+version = "0.1.0"
+description = "OpenBB SnapTrade integration service"
+readme = "README.md"
+requires-python = ">=3.12"
+dependencies = [
+  "pywry[auth]>=2.0.2",
+  "httpx>=0.27.0",
+  "python-dotenv>=1.0.0",
+  "redis>=5.0.0",
+  "snaptrade-python-sdk==11.0.207",
+]
+
+[tool.hatch.build.targets.wheel]
+packages = ["openbb_snaptrade"]
+
+[tool.hatch.build.targets.wheel.force-include]
+"openbb_snaptrade/static" = "openbb_snaptrade/static"
+"openbb_snaptrade/widgets" = "openbb_snaptrade/widgets"
+
+[tool.hatch.build.targets.sdist]
+include = [
+  "openbb_snaptrade/**",
+  "README.md",
+  "pyproject.toml",
+]

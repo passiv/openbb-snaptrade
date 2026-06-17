@@ -1,0 +1,1129 @@
+{
+  "snaptrade_connection_portal": {
+    "name": "SnapTrade Connection Portal",
+    "description": "Add brokerage connections through SnapTrade Connection Portal and manage existing connections.",
+    "endpoint": "widget",
+    "type": "iframe",
+    "category": "Brokerage",
+    "subCategory": "Connections",
+    "gridData": {
+      "w": 40,
+      "h": 24
+    },
+    "source": [
+      "SnapTrade"
+    ],
+    "storage": {
+      "mcpUrl": "mcp"
+    }
+  },
+  "portfolio_overview": {
+    "name": "Portfolio Overview",
+    "description": "Portfolio totals, account rollup, exposure, and top positions.",
+    "endpoint": "portfolio-overview",
+    "type": "iframe",
+    "category": "Brokerage",
+    "subCategory": "Portfolio",
+    "gridData": {
+      "w": 40,
+      "h": 24
+    },
+    "source": [
+      "SnapTrade"
+    ],
+    "storage": {
+      "mcpUrl": "mcp"
+    }
+  },
+  "snaptrade_order_ticket": {
+    "name": "Order Ticket",
+    "description": "Place equity or crypto orders. Form fields adapt to the selected account's brokerage capabilities and asset type.",
+    "endpoint": "trade",
+    "type": "iframe",
+    "category": "Brokerage",
+    "subCategory": "Trading",
+    "gridData": {
+      "w": 24,
+      "h": 28
+    },
+    "source": [
+      "SnapTrade"
+    ]
+  },
+  "snaptrade_orders": {
+    "name": "Orders",
+    "description": "Open and recent orders across connected brokerage accounts.",
+    "endpoint": "snaptrade/orders",
+    "type": "table",
+    "category": "Brokerage",
+    "subCategory": "Trading",
+    "gridData": {
+      "w": 40,
+      "h": 18
+    },
+    "source": [
+      "SnapTrade"
+    ],
+    "params": [
+      {
+        "type": "endpoint",
+        "paramName": "accountId",
+        "label": "Account",
+        "value": "__all__",
+        "show": true,
+        "description": "Filter orders by account. Defaults to all accounts.",
+        "optionsEndpoint": "snaptrade/account-options"
+      },
+      {
+        "type": "text",
+        "paramName": "state",
+        "label": "State",
+        "value": "all",
+        "show": true,
+        "description": "Order state filter.",
+        "options": [
+          {
+            "label": "All",
+            "value": "all"
+          },
+          {
+            "label": "Open",
+            "value": "open"
+          },
+          {
+            "label": "Executed",
+            "value": "executed"
+          },
+          {
+            "label": "Canceled",
+            "value": "canceled"
+          },
+          {
+            "label": "Recent (last fills)",
+            "value": "recent"
+          }
+        ]
+      },
+      {
+        "type": "number",
+        "paramName": "days",
+        "label": "Days back",
+        "value": 30,
+        "show": true,
+        "description": "How many days of history to include (ignored when state=recent)."
+      }
+    ],
+    "data": {
+      "table": {
+        "showAll": true,
+        "enableCharts": true,
+        "enableAdvanced": true,
+        "columnsDefs": [
+          {
+            "field": "time_placed",
+            "headerName": "Placed",
+            "cellDataType": "dateString",
+            "width": 170,
+            "pinned": "left"
+          },
+          {
+            "field": "account_name",
+            "headerName": "Account",
+            "cellDataType": "text",
+            "width": 160
+          },
+          {
+            "field": "symbol",
+            "headerName": "Symbol",
+            "cellDataType": "text",
+            "width": 110
+          },
+          {
+            "field": "description",
+            "headerName": "Description",
+            "cellDataType": "text",
+            "width": 260
+          },
+          {
+            "field": "action",
+            "headerName": "Action",
+            "cellDataType": "text",
+            "width": 100
+          },
+          {
+            "field": "order_type",
+            "headerName": "Type",
+            "cellDataType": "text",
+            "width": 110
+          },
+          {
+            "field": "status",
+            "headerName": "Status",
+            "cellDataType": "text",
+            "width": 120,
+            "renderFn": "columnColor",
+            "renderFnParams": {
+              "colorRules": [
+                {
+                  "condition": "contains",
+                  "value": "EXECUTED",
+                  "color": "#16a34a",
+                  "fill": true
+                },
+                {
+                  "condition": "contains",
+                  "value": "FILLED",
+                  "color": "#16a34a",
+                  "fill": true
+                },
+                {
+                  "condition": "contains",
+                  "value": "CANCEL",
+                  "color": "#dc2626",
+                  "fill": true
+                },
+                {
+                  "condition": "contains",
+                  "value": "REJECT",
+                  "color": "#dc2626",
+                  "fill": true
+                },
+                {
+                  "condition": "contains",
+                  "value": "OPEN",
+                  "color": "#2563eb",
+                  "fill": true
+                },
+                {
+                  "condition": "contains",
+                  "value": "PENDING",
+                  "color": "#ca8a04",
+                  "fill": true
+                }
+              ]
+            }
+          },
+          {
+            "field": "total_quantity",
+            "headerName": "Qty",
+            "cellDataType": "number",
+            "decimalPlaces": 4,
+            "width": 110
+          },
+          {
+            "field": "filled_quantity",
+            "headerName": "Filled",
+            "cellDataType": "number",
+            "decimalPlaces": 4,
+            "width": 110
+          },
+          {
+            "field": "execution_price",
+            "headerName": "Avg Px",
+            "cellDataType": "number",
+            "decimalPlaces": 4,
+            "width": 110
+          },
+          {
+            "field": "limit_price",
+            "headerName": "Limit",
+            "cellDataType": "number",
+            "decimalPlaces": 4,
+            "width": 110
+          },
+          {
+            "field": "stop_price",
+            "headerName": "Stop",
+            "cellDataType": "number",
+            "decimalPlaces": 4,
+            "width": 110
+          },
+          {
+            "field": "time_in_force",
+            "headerName": "TIF",
+            "cellDataType": "text",
+            "width": 90
+          },
+          {
+            "field": "time_executed",
+            "headerName": "Executed",
+            "cellDataType": "dateString",
+            "width": 170
+          },
+          {
+            "field": "brokerage_order_id",
+            "headerName": "Order ID",
+            "cellDataType": "text",
+            "width": 220,
+            "hide": true
+          }
+        ]
+      }
+    }
+  },
+  "snaptrade_activities": {
+    "name": "Activities",
+    "description": "Brokerage activity feed: trades, dividends, deposits, fees, and corporate actions.",
+    "endpoint": "snaptrade/activities",
+    "type": "table",
+    "category": "Brokerage",
+    "subCategory": "Reporting",
+    "gridData": {
+      "w": 40,
+      "h": 18
+    },
+    "source": [
+      "SnapTrade"
+    ],
+    "params": [
+      {
+        "type": "date",
+        "paramName": "startDate",
+        "label": "Start date",
+        "value": "$currentDate-30d",
+        "show": true,
+        "description": "Inclusive start date."
+      },
+      {
+        "type": "date",
+        "paramName": "endDate",
+        "label": "End date",
+        "value": "$currentDate",
+        "show": true,
+        "description": "Inclusive end date."
+      },
+      {
+        "type": "endpoint",
+        "paramName": "accounts",
+        "label": "Account",
+        "value": "__all__",
+        "show": true,
+        "description": "Filter activities by account.",
+        "optionsEndpoint": "snaptrade/account-options"
+      },
+      {
+        "type": "text",
+        "paramName": "type",
+        "label": "Type",
+        "value": "__all__",
+        "show": true,
+        "description": "Activity type filter.",
+        "options": [
+          {
+            "label": "All types",
+            "value": "__all__"
+          },
+          {
+            "label": "Buy",
+            "value": "BUY"
+          },
+          {
+            "label": "Sell",
+            "value": "SELL"
+          },
+          {
+            "label": "Dividend",
+            "value": "DIVIDEND"
+          },
+          {
+            "label": "Interest",
+            "value": "INTEREST"
+          },
+          {
+            "label": "Deposit",
+            "value": "DEPOSIT"
+          },
+          {
+            "label": "Withdrawal",
+            "value": "WITHDRAWAL"
+          },
+          {
+            "label": "Fee",
+            "value": "FEE"
+          },
+          {
+            "label": "Transfer",
+            "value": "TRANSFER"
+          },
+          {
+            "label": "Stock Split",
+            "value": "STOCK_DIVIDEND"
+          },
+          {
+            "label": "Option Expiration",
+            "value": "OPTIONEXPIRATION"
+          },
+          {
+            "label": "Option Assignment",
+            "value": "OPTIONASSIGNMENT"
+          },
+          {
+            "label": "Option Exercise",
+            "value": "OPTIONEXERCISE"
+          }
+        ]
+      }
+    ],
+    "data": {
+      "table": {
+        "showAll": true,
+        "enableCharts": true,
+        "enableAdvanced": true,
+        "columnsDefs": [
+          {
+            "field": "trade_date",
+            "headerName": "Trade Date",
+            "cellDataType": "dateString",
+            "width": 130,
+            "pinned": "left"
+          },
+          {
+            "field": "settlement_date",
+            "headerName": "Settled",
+            "cellDataType": "dateString",
+            "width": 130
+          },
+          {
+            "field": "account_name",
+            "headerName": "Account",
+            "cellDataType": "text",
+            "width": 160
+          },
+          {
+            "field": "type",
+            "headerName": "Type",
+            "cellDataType": "text",
+            "width": 130
+          },
+          {
+            "field": "symbol",
+            "headerName": "Symbol",
+            "cellDataType": "text",
+            "width": 110
+          },
+          {
+            "field": "description",
+            "headerName": "Description",
+            "cellDataType": "text",
+            "width": 320
+          },
+          {
+            "field": "units",
+            "headerName": "Units",
+            "cellDataType": "number",
+            "decimalPlaces": 4,
+            "width": 110
+          },
+          {
+            "field": "price",
+            "headerName": "Price",
+            "cellDataType": "number",
+            "decimalPlaces": 4,
+            "width": 110
+          },
+          {
+            "field": "amount",
+            "headerName": "Amount",
+            "cellDataType": "number",
+            "decimalPlaces": 2,
+            "width": 130,
+            "renderFn": "greenRed"
+          },
+          {
+            "field": "fee",
+            "headerName": "Fee",
+            "cellDataType": "number",
+            "decimalPlaces": 2,
+            "width": 100
+          },
+          {
+            "field": "currency",
+            "headerName": "Ccy",
+            "cellDataType": "text",
+            "width": 80
+          },
+          {
+            "field": "institution",
+            "headerName": "Institution",
+            "cellDataType": "text",
+            "width": 160
+          }
+        ]
+      }
+    }
+  },
+  "snaptrade_balance_history": {
+    "name": "Balance History",
+    "description": "Historical account balance time series for a connected brokerage account.",
+    "endpoint": "snaptrade/balance-history",
+    "type": "table",
+    "category": "Brokerage",
+    "subCategory": "Portfolio",
+    "gridData": {
+      "w": 40,
+      "h": 18
+    },
+    "source": [
+      "SnapTrade"
+    ],
+    "params": [
+      {
+        "type": "endpoint",
+        "paramName": "accountId",
+        "label": "Account",
+        "value": "__all__",
+        "show": true,
+        "description": "Account to plot. Defaults to all accounts.",
+        "optionsEndpoint": "snaptrade/account-options"
+      }
+    ],
+    "data": {
+      "table": {
+        "showAll": true,
+        "enableCharts": true,
+        "enableAdvanced": true,
+        "chartView": {
+          "enabled": true,
+          "chartType": "line",
+          "cellRangeCols": {
+            "line": [
+              "date",
+              "amount"
+            ],
+            "area": [
+              "date",
+              "amount"
+            ],
+            "column": [
+              "date",
+              "amount"
+            ]
+          },
+          "chartNavigatorEnabled": true
+        },
+        "columnsDefs": [
+          {
+            "field": "date",
+            "headerName": "Date",
+            "cellDataType": "dateString",
+            "chartDataType": "time",
+            "width": 130,
+            "pinned": "left"
+          },
+          {
+            "field": "amount",
+            "headerName": "Balance",
+            "cellDataType": "number",
+            "chartDataType": "series",
+            "decimalPlaces": 2,
+            "width": 160
+          },
+          {
+            "field": "currency",
+            "headerName": "Ccy",
+            "cellDataType": "text",
+            "width": 80
+          },
+          {
+            "field": "account_name",
+            "headerName": "Account",
+            "cellDataType": "text",
+            "width": 200
+          }
+        ]
+      }
+    }
+  },
+  "snaptrade_brokerages": {
+    "name": "Brokerage Catalog",
+    "description": "Reference list of brokerages supported by SnapTrade, including trading and fractional support.",
+    "endpoint": "snaptrade/brokerages",
+    "type": "table",
+    "category": "Brokerage",
+    "subCategory": "Reference",
+    "gridData": {
+      "w": 40,
+      "h": 16
+    },
+    "source": [
+      "SnapTrade"
+    ],
+    "data": {
+      "table": {
+        "showAll": true,
+        "enableAdvanced": true,
+        "columnsDefs": [
+          {
+            "field": "display_name",
+            "headerName": "Brokerage",
+            "cellDataType": "text",
+            "width": 220,
+            "pinned": "left"
+          },
+          {
+            "field": "slug",
+            "headerName": "Slug",
+            "cellDataType": "text",
+            "width": 160
+          },
+          {
+            "field": "enabled",
+            "headerName": "Enabled",
+            "cellDataType": "boolean",
+            "width": 110
+          },
+          {
+            "field": "allows_trading",
+            "headerName": "Trading",
+            "cellDataType": "boolean",
+            "width": 110
+          },
+          {
+            "field": "allows_fractional_units",
+            "headerName": "Fractional",
+            "cellDataType": "boolean",
+            "width": 120
+          },
+          {
+            "field": "maintenance_mode",
+            "headerName": "Maint.",
+            "cellDataType": "boolean",
+            "width": 100
+          },
+          {
+            "field": "description",
+            "headerName": "Description",
+            "cellDataType": "text",
+            "width": 360
+          },
+          {
+            "field": "url",
+            "headerName": "URL",
+            "cellDataType": "text",
+            "width": 240
+          }
+        ]
+      }
+    }
+  },
+  "snaptrade_symbol_search": {
+    "name": "Symbol Search",
+    "description": "Search SnapTrade's universal symbol catalog by ticker or substring.",
+    "endpoint": "snaptrade/symbol-search",
+    "type": "table",
+    "category": "Brokerage",
+    "subCategory": "Reference",
+    "gridData": {
+      "w": 40,
+      "h": 16
+    },
+    "source": [
+      "SnapTrade"
+    ],
+    "runButton": false,
+    "params": [
+      {
+        "type": "text",
+        "paramName": "query",
+        "label": "Query",
+        "value": null,
+        "show": true,
+        "description": "Ticker or substring to search."
+      }
+    ],
+    "data": {
+      "table": {
+        "showAll": true,
+        "enableAdvanced": true,
+        "columnsDefs": [
+          {
+            "field": "symbol",
+            "headerName": "Symbol",
+            "cellDataType": "text",
+            "width": 120,
+            "pinned": "left"
+          },
+          {
+            "field": "description",
+            "headerName": "Description",
+            "cellDataType": "text",
+            "width": 320
+          },
+          {
+            "field": "type",
+            "headerName": "Type",
+            "cellDataType": "text",
+            "width": 120
+          },
+          {
+            "field": "exchange",
+            "headerName": "Exchange",
+            "cellDataType": "text",
+            "width": 120
+          },
+          {
+            "field": "currency",
+            "headerName": "Ccy",
+            "cellDataType": "text",
+            "width": 80
+          },
+          {
+            "field": "raw_symbol",
+            "headerName": "Raw",
+            "cellDataType": "text",
+            "width": 120
+          },
+          {
+            "field": "figi_code",
+            "headerName": "FIGI",
+            "cellDataType": "text",
+            "width": 140
+          },
+          {
+            "field": "id",
+            "headerName": "ID",
+            "cellDataType": "text",
+            "width": 280,
+            "hide": true
+          }
+        ]
+      }
+    }
+  },
+  "snaptrade_reference_broker_instruments": {
+    "name": "Broker Instrument Catalog",
+    "description": "Instruments tradable at a specific brokerage, including exchange MIC and tradeable/fractional flags.",
+    "endpoint": "snaptrade/reference/broker-instruments",
+    "type": "table",
+    "category": "Brokerage",
+    "subCategory": "Reference",
+    "gridData": {
+      "w": 40,
+      "h": 18
+    },
+    "source": [
+      "SnapTrade"
+    ],
+    "params": [
+      {
+        "type": "endpoint",
+        "paramName": "slug",
+        "label": "Brokerage",
+        "value": "ALPACA-PAPER",
+        "show": true,
+        "description": "Brokerage slug to look up.",
+        "optionsEndpoint": "snaptrade/reference/broker-options"
+      }
+    ],
+    "data": {
+      "table": {
+        "showAll": true,
+        "enableAdvanced": true,
+        "columnsDefs": [
+          {
+            "field": "symbol",
+            "headerName": "Symbol",
+            "cellDataType": "text",
+            "width": 140,
+            "pinned": "left"
+          },
+          {
+            "field": "exchange_mic",
+            "headerName": "Exchange (MIC)",
+            "cellDataType": "text",
+            "width": 150
+          },
+          {
+            "field": "tradeable",
+            "headerName": "Tradeable",
+            "cellDataType": "boolean",
+            "width": 110
+          },
+          {
+            "field": "fractionable",
+            "headerName": "Fractional",
+            "cellDataType": "boolean",
+            "width": 110
+          },
+          {
+            "field": "universal_symbol_id",
+            "headerName": "Universal ID",
+            "cellDataType": "text",
+            "width": 300,
+            "hide": true
+          }
+        ]
+      }
+    }
+  },
+  "snaptrade_reference_exchanges": {
+    "name": "Stock Exchanges",
+    "description": "Reference list of stock exchanges with MIC code, suffix, timezone, and trading hours.",
+    "endpoint": "snaptrade/reference/exchanges",
+    "type": "table",
+    "category": "Brokerage",
+    "subCategory": "Reference",
+    "gridData": {
+      "w": 40,
+      "h": 16
+    },
+    "source": [
+      "SnapTrade"
+    ],
+    "data": {
+      "table": {
+        "showAll": true,
+        "enableAdvanced": true,
+        "columnsDefs": [
+          {
+            "field": "code",
+            "headerName": "Code",
+            "cellDataType": "text",
+            "width": 100,
+            "pinned": "left"
+          },
+          {
+            "field": "mic_code",
+            "headerName": "MIC",
+            "cellDataType": "text",
+            "width": 100
+          },
+          {
+            "field": "name",
+            "headerName": "Name",
+            "cellDataType": "text",
+            "width": 280
+          },
+          {
+            "field": "suffix",
+            "headerName": "Suffix",
+            "cellDataType": "text",
+            "width": 100
+          },
+          {
+            "field": "timezone",
+            "headerName": "Timezone",
+            "cellDataType": "text",
+            "width": 180
+          },
+          {
+            "field": "start_time",
+            "headerName": "Open",
+            "cellDataType": "text",
+            "width": 100
+          },
+          {
+            "field": "close_time",
+            "headerName": "Close",
+            "cellDataType": "text",
+            "width": 100
+          },
+          {
+            "field": "id",
+            "headerName": "ID",
+            "cellDataType": "text",
+            "width": 280,
+            "hide": true
+          }
+        ]
+      }
+    }
+  },
+  "snaptrade_reference_security_types": {
+    "name": "Security Types",
+    "description": "Reference list of supported security type codes (equity, ETF, option, crypto, etc.).",
+    "endpoint": "snaptrade/reference/security-types",
+    "type": "table",
+    "category": "Brokerage",
+    "subCategory": "Reference",
+    "gridData": {
+      "w": 24,
+      "h": 16
+    },
+    "source": [
+      "SnapTrade"
+    ],
+    "data": {
+      "table": {
+        "showAll": true,
+        "enableAdvanced": true,
+        "columnsDefs": [
+          {
+            "field": "code",
+            "headerName": "Code",
+            "cellDataType": "text",
+            "width": 100,
+            "pinned": "left"
+          },
+          {
+            "field": "description",
+            "headerName": "Description",
+            "cellDataType": "text",
+            "width": 360
+          },
+          {
+            "field": "is_supported",
+            "headerName": "Supported",
+            "cellDataType": "boolean",
+            "width": 120
+          },
+          {
+            "field": "id",
+            "headerName": "ID",
+            "cellDataType": "text",
+            "width": 280,
+            "hide": true
+          }
+        ]
+      }
+    }
+  },
+  "snaptrade_reference_currencies": {
+    "name": "Currencies",
+    "description": "Reference list of currencies known to SnapTrade.",
+    "endpoint": "snaptrade/reference/currencies",
+    "type": "table",
+    "category": "Brokerage",
+    "subCategory": "Reference",
+    "gridData": {
+      "w": 16,
+      "h": 16
+    },
+    "source": [
+      "SnapTrade"
+    ],
+    "data": {
+      "table": {
+        "showAll": true,
+        "enableAdvanced": true,
+        "columnsDefs": [
+          {
+            "field": "code",
+            "headerName": "Code",
+            "cellDataType": "text",
+            "width": 100,
+            "pinned": "left"
+          },
+          {
+            "field": "name",
+            "headerName": "Name",
+            "cellDataType": "text",
+            "width": 260
+          },
+          {
+            "field": "id",
+            "headerName": "ID",
+            "cellDataType": "text",
+            "width": 280,
+            "hide": true
+          }
+        ]
+      }
+    }
+  },
+  "snaptrade_reference_fx_rates": {
+    "name": "FX Rates",
+    "description": "All currency-pair exchange rates known to SnapTrade. Filter by source or destination currency.",
+    "endpoint": "snaptrade/reference/fx-rates",
+    "type": "table",
+    "category": "Brokerage",
+    "subCategory": "Reference",
+    "gridData": {
+      "w": 40,
+      "h": 18
+    },
+    "source": [
+      "SnapTrade"
+    ],
+    "params": [
+      {
+        "type": "text",
+        "paramName": "src",
+        "label": "From",
+        "value": "USD",
+        "show": true,
+        "description": "Filter by source currency code (e.g. USD). Leave blank for all."
+      },
+      {
+        "type": "text",
+        "paramName": "dst",
+        "label": "To",
+        "value": null,
+        "show": true,
+        "description": "Filter by destination currency code. Leave blank for all."
+      }
+    ],
+    "data": {
+      "table": {
+        "showAll": true,
+        "enableCharts": true,
+        "enableAdvanced": true,
+        "columnsDefs": [
+          {
+            "field": "pair",
+            "headerName": "Pair",
+            "cellDataType": "text",
+            "width": 110,
+            "pinned": "left"
+          },
+          {
+            "field": "src_code",
+            "headerName": "From",
+            "cellDataType": "text",
+            "width": 90
+          },
+          {
+            "field": "src_name",
+            "headerName": "From Name",
+            "cellDataType": "text",
+            "width": 220
+          },
+          {
+            "field": "dst_code",
+            "headerName": "To",
+            "cellDataType": "text",
+            "width": 90
+          },
+          {
+            "field": "dst_name",
+            "headerName": "To Name",
+            "cellDataType": "text",
+            "width": 220
+          },
+          {
+            "field": "exchange_rate",
+            "headerName": "Rate",
+            "cellDataType": "number",
+            "decimalPlaces": 6,
+            "width": 140
+          }
+        ]
+      }
+    }
+  },
+  "snaptrade_account_quotes": {
+    "name": "SnapTrade Account Quotes",
+    "description": "Brokerage-delayed L1 quotes for up to 10 symbols on a selected account.",
+    "endpoint": "snaptrade/quotes",
+    "type": "table",
+    "category": "Brokerage",
+    "subCategory": "Market Data",
+    "gridData": {
+      "w": 40,
+      "h": 16
+    },
+    "source": [
+      "SnapTrade"
+    ],
+    "runButton": true,
+    "params": [
+      {
+        "type": "endpoint",
+        "paramName": "accountId",
+        "label": "Account",
+        "value": null,
+        "show": true,
+        "description": "Brokerage account that provides the quotes.",
+        "optionsEndpoint": "snaptrade/account-options-required"
+      },
+      {
+        "type": "text",
+        "paramName": "symbols",
+        "label": "Symbols",
+        "value": "AAPL,MSFT,SPY",
+        "show": true,
+        "description": "Comma-separated tickers, max 10. Quotes may be delayed; do not poll frequently."
+      }
+    ],
+    "data": {
+      "table": {
+        "showAll": true,
+        "enableCharts": true,
+        "enableAdvanced": true,
+        "columnsDefs": [
+          {
+            "field": "symbol",
+            "headerName": "Symbol",
+            "cellDataType": "text",
+            "width": 110,
+            "pinned": "left"
+          },
+          {
+            "field": "description",
+            "headerName": "Description",
+            "cellDataType": "text",
+            "width": 280
+          },
+          {
+            "field": "bid_price",
+            "headerName": "Bid",
+            "cellDataType": "number",
+            "decimalPlaces": 4,
+            "width": 110
+          },
+          {
+            "field": "ask_price",
+            "headerName": "Ask",
+            "cellDataType": "number",
+            "decimalPlaces": 4,
+            "width": 110
+          },
+          {
+            "field": "mid_price",
+            "headerName": "Mid",
+            "cellDataType": "number",
+            "decimalPlaces": 4,
+            "width": 110
+          },
+          {
+            "field": "spread",
+            "headerName": "Spread",
+            "cellDataType": "number",
+            "decimalPlaces": 4,
+            "width": 100
+          },
+          {
+            "field": "last_trade_price",
+            "headerName": "Last",
+            "cellDataType": "number",
+            "decimalPlaces": 4,
+            "width": 110
+          },
+          {
+            "field": "bid_size",
+            "headerName": "Bid Size",
+            "cellDataType": "number",
+            "decimalPlaces": 0,
+            "width": 100
+          },
+          {
+            "field": "ask_size",
+            "headerName": "Ask Size",
+            "cellDataType": "number",
+            "decimalPlaces": 0,
+            "width": 100
+          },
+          {
+            "field": "exchange",
+            "headerName": "Exch",
+            "cellDataType": "text",
+            "width": 90
+          },
+          {
+            "field": "currency",
+            "headerName": "Ccy",
+            "cellDataType": "text",
+            "width": 80
+          },
+          {
+            "field": "universal_symbol_id",
+            "headerName": "ID",
+            "cellDataType": "text",
+            "width": 280,
+            "hide": true
+          }
+        ]
+      }
+    }
+  }
+}

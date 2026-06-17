@@ -1,0 +1,153 @@
+[
+  {
+    "name": "SnapTrade",
+    "description": "Connect your SnapTrade account to the OpenBB Workspace.",
+    "img": "https://media.licdn.com/dms/image/v2/D4E0BAQG3VXAhJveyAg/company-logo_200_200/company-logo_200_200/0/1722848036107/snaptrade_logo?e=2147483647&v=beta&t=MP6KTvdPidB_4W115nv2gaKDWyxjbyRf25fQHXDCSb8",
+    "img_dark": "",
+    "img_light": "",
+    "allowCustomization": true,
+    "tabs": {
+      "connection-portal": {
+        "id": "connection-portal",
+        "name": "Connection Portal",
+        "layout": [
+          {
+            "i": "snaptrade_connection_portal",
+            "x": 0,
+            "y": 0,
+            "w": 40,
+            "h": 12
+          },
+          {
+            "i": "portfolio_overview",
+            "x": 0,
+            "y": 24,
+            "w": 40,
+            "h": 24
+          }
+        ]
+      },
+      "activity": {
+        "id": "activity",
+        "name": "Activity",
+        "layout": [
+          {
+            "i": "snaptrade_orders",
+            "x": 0,
+            "y": 0,
+            "w": 40,
+            "h": 18
+          },
+          {
+            "i": "snaptrade_activities",
+            "x": 0,
+            "y": 18,
+            "w": 40,
+            "h": 18
+          },
+          {
+            "i": "snaptrade_balance_history",
+            "x": 0,
+            "y": 36,
+            "w": 40,
+            "h": 18
+          }
+        ]
+      },
+      "reference-data": {
+        "id": "reference-data",
+        "name": "Reference Data",
+        "layout": [
+          {
+            "i": "snaptrade_symbol_search",
+            "x": 0,
+            "y": 0,
+            "w": 40,
+            "h": 16
+          },
+          {
+            "i": "snaptrade_reference_fx_rates",
+            "x": 0,
+            "y": 16,
+            "w": 40,
+            "h": 18
+          },
+          {
+            "i": "snaptrade_reference_security_types",
+            "x": 0,
+            "y": 34,
+            "w": 24,
+            "h": 16
+          },
+          {
+            "i": "snaptrade_reference_currencies",
+            "x": 24,
+            "y": 34,
+            "w": 16,
+            "h": 16
+          },
+          {
+            "i": "snaptrade_reference_exchanges",
+            "x": 0,
+            "y": 50,
+            "w": 40,
+            "h": 16
+          },
+          {
+            "i": "snaptrade_brokerages",
+            "x": 0,
+            "y": 66,
+            "w": 40,
+            "h": 16
+          },
+          {
+            "i": "snaptrade_reference_broker_instruments",
+            "x": 0,
+            "y": 82,
+            "w": 40,
+            "h": 18
+          }
+        ]
+      },
+      "market-data": {
+        "id": "market-data",
+        "name": "Market Data",
+        "layout": [
+          {
+            "i": "snaptrade_account_quotes",
+            "x": 0,
+            "y": 0,
+            "w": 40,
+            "h": 18
+          }
+        ]
+      },
+      "trade": {
+        "id": "trade",
+        "name": "Trade",
+        "layout": [
+          {
+            "i": "snaptrade_order_ticket",
+            "x": 0,
+            "y": 0,
+            "w": 24,
+            "h": 28
+          },
+          {
+            "i": "snaptrade_orders",
+            "x": 24,
+            "y": 0,
+            "w": 16,
+            "h": 28
+          }
+        ]
+      }
+    },
+    "groups": [],
+    "prompts": [
+      "Connect a new brokerage account with SnapTrade Connection Portal.",
+      "Show all connected brokerages and their status.",
+      "Reconnect disabled broker connections."
+    ]
+  }
+]

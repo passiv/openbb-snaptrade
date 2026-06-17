@@ -1,0 +1,197 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>SnapTrade Order Ticket</title>
+</head>
+<body>
+<div class="wrap">
+  <div class="header">
+    <div>
+      <h1>Order Ticket</h1>
+      <div id="status" class="status"></div>
+    </div>
+    <button id="refresh" class="btn">Reload Accounts</button>
+  </div>
+
+  <div class="card">
+    <div class="grid two">
+      <div class="field">
+        <label for="account">Account</label>
+        <select id="account" class="control"></select>
+        <div id="account-meta" class="hint"></div>
+      </div>
+      <div class="field">
+        <label for="asset-class">Asset Type</label>
+        <select id="asset-class" class="control">
+          <option value="equity">Equity / ETF</option>
+          <option value="option">Options</option>
+          <option value="crypto">Crypto</option>
+        </select>
+        <div class="hint">Available types are determined by the selected account's brokerage.</div>
+      </div>
+    </div>
+
+    <div class="field" id="single-symbol-section">
+      <label for="symbol-input">Symbol</label>
+      <div class="search-wrap">
+        <input id="symbol-input" class="control" type="text" autocomplete="off" placeholder="Search ticker or name..." value="AAPL"/>
+        <div id="symbol-results" class="search-results" hidden></div>
+      </div>
+      <div id="symbol-selected" class="selected-pill" hidden></div>
+    </div>
+
+    <div id="options-section" hidden>
+      <div class="legs-header">
+        <div class="legs-title">Legs</div>
+        <div class="legs-actions">
+          <button type="button" class="btn btn-ghost" id="btn-add-leg">+ Add Leg</button>
+        </div>
+      </div>
+      <div id="legs-list"></div>
+      <div class="field" id="price-effect-field" hidden>
+        <label for="price-effect">Price Effect (Multi-Leg)</label>
+        <select id="price-effect" class="control">
+          <option value="">Auto / Not set</option>
+          <option value="DEBIT">Debit (net pay)</option>
+          <option value="CREDIT">Credit (net receive)</option>
+          <option value="EVEN">Even</option>
+        </select>
+      </div>
+    </div>
+
+    <div class="grid two" id="side-row">
+      <div class="field">
+        <label>Side</label>
+        <div class="seg" id="side-seg">
+          <button type="button" class="seg-btn active" data-side="BUY">Buy</button>
+          <button type="button" class="seg-btn" data-side="SELL">Sell</button>
+        </div>
+      </div>
+      <div class="field">
+        <label for="order-type">Order Type</label>
+        <select id="order-type" class="control"></select>
+      </div>
+    </div>
+
+    <div class="grid two">
+      <div class="field">
+        <label for="time-in-force">Time in Force</label>
+        <select id="time-in-force" class="control"></select>
+      </div>
+      <div class="field" id="quantity-field">
+        <label for="quantity"><span id="quantity-label">Quantity (units)</span></label>
+        <input id="quantity" class="control" type="number" min="0" step="any" placeholder="0"/>
+        <div class="hint" id="quantity-hint"></div>
+      </div>
+    </div>
+
+    <div class="grid two" id="price-row" hidden>
+      <div class="field" id="limit-field" hidden>
+        <label for="limit-price">Limit Price</label>
+        <input id="limit-price" class="control" type="number" min="0" step="any" placeholder="0.00"/>
+      </div>
+      <div class="field" id="stop-field" hidden>
+        <label for="stop-price">Stop Price</label>
+        <input id="stop-price" class="control" type="number" min="0" step="any" placeholder="0.00"/>
+      </div>
+    </div>
+
+    <div class="grid two" id="notional-row" hidden>
+      <div class="field">
+        <label>
+          <input type="checkbox" id="use-notional"/>
+          Use notional value instead of units
+        </label>
+        <div class="hint">Available on brokerages that support fractional / dollar-based orders.</div>
+      </div>
+      <div class="field" id="notional-field" hidden>
+        <label for="notional-value">Notional Amount</label>
+        <input id="notional-value" class="control" type="number" min="0" step="any" placeholder="0.00"/>
+      </div>
+    </div>
+
+    <div class="field" id="extended-hours-row" hidden>
+      <label>
+        <input type="checkbox" id="extended-hours"/>
+        Extended-hours session (requires Limit order; Day or GTC TIF)
+      </label>
+    </div>
+
+    <div class="field" id="post-only-row" hidden>
+      <label>
+        <input type="checkbox" id="post-only"/>
+        Post-only (maker) for crypto limit orders
+      </label>
+    </div>
+
+    <div id="quote-panel" class="quote-panel" hidden>
+      <div class="quote-cell"><span class="quote-label">Bid</span><span id="quote-bid" class="quote-value">—</span></div>
+      <div class="quote-cell"><span class="quote-label">Ask</span><span id="quote-ask" class="quote-value">—</span></div>
+      <div class="quote-cell"><span class="quote-label">Last</span><span id="quote-last" class="quote-value">—</span></div>
+      <button type="button" class="quote-refresh" id="btn-refresh-quote" title="Refresh quote" aria-label="Refresh quote">↻</button>
+    </div>
+
+    <div class="actions">
+      <button type="button" class="btn btn-secondary" id="btn-preview">Preview Order</button>
+      <button type="button" class="btn btn-primary" id="btn-place" disabled>Place Order</button>
+    </div>
+
+    <div id="preview-panel" class="preview-panel" hidden></div>
+    <div id="result-panel" class="result-panel" hidden></div>
+  </div>
+</div>
+
+<template id="leg-template">
+  <div class="leg">
+    <div class="leg-head">
+      <span class="leg-index"></span>
+      <button type="button" class="leg-remove" title="Remove leg" aria-label="Remove leg">×</button>
+    </div>
+    <div class="grid two">
+      <div class="field">
+        <label>Action</label>
+        <select class="control leg-action">
+          <option value="BUY_TO_OPEN">Buy to Open</option>
+          <option value="SELL_TO_OPEN">Sell to Open</option>
+          <option value="BUY_TO_CLOSE">Buy to Close</option>
+          <option value="SELL_TO_CLOSE">Sell to Close</option>
+        </select>
+      </div>
+      <div class="field">
+        <label>Contracts</label>
+        <input class="control leg-units" type="number" min="1" step="1" placeholder="1" value="1"/>
+      </div>
+    </div>
+    <div class="field">
+      <label>Option Symbol (OCC)</label>
+      <input class="control leg-symbol" type="text" placeholder="e.g. AAPL  240119C00150000" autocomplete="off"/>
+      <div class="hint">Use the builder below, or paste an OCC-formatted symbol directly.</div>
+    </div>
+    <div class="grid four leg-builder">
+      <div class="field">
+        <label>Underlying</label>
+        <input class="control leg-underlying" type="text" placeholder="AAPL" autocomplete="off"/>
+      </div>
+      <div class="field">
+        <label>Expiry</label>
+        <input class="control leg-expiry" type="date"/>
+      </div>
+      <div class="field">
+        <label>Type</label>
+        <select class="control leg-cp">
+          <option value="C">Call</option>
+          <option value="P">Put</option>
+        </select>
+      </div>
+      <div class="field">
+        <label>Strike</label>
+        <input class="control leg-strike" type="number" min="0" step="any" placeholder="150"/>
+      </div>
+    </div>
+    <button type="button" class="btn btn-ghost leg-build-btn">Build OCC Symbol</button>
+  </div>
+</template>
+</body>
+</html>

@@ -1,0 +1,36 @@
+services:
+  redis:
+    image: redis:7-alpine
+    restart: unless-stopped
+    volumes:
+      - redis_data:/data
+
+  app:
+    build: .
+    restart: unless-stopped
+    expose:
+      - "8069"
+    environment:
+      PYWRY_DEPLOY__REDIS_URL: "redis://redis:6379/0"
+      SNAPTRADE_STORE_ENCRYPTION_KEY_B64: "${SNAPTRADE_STORE_ENCRYPTION_KEY_B64:?Set SNAPTRADE_STORE_ENCRYPTION_KEY_B64}"
+      SNAPTRADE_CONNECTION_REDIRECT: "${SNAPTRADE_CONNECTION_REDIRECT:?Set SNAPTRADE_CONNECTION_REDIRECT}"
+      SNAPTRADE_DEBUG_HEADERS: "${SNAPTRADE_DEBUG_HEADERS:-0}"
+    depends_on:
+      - redis
+
+  tls-proxy:
+    image: caddy:2-alpine
+    restart: unless-stopped
+    ports:
+      - "8443:8443"
+    volumes:
+      - ./Caddyfile:/etc/caddy/Caddyfile:ro
+      - caddy_data:/data
+      - caddy_config:/config
+    depends_on:
+      - app
+
+volumes:
+  redis_data:
+  caddy_data:
+  caddy_config:

@@ -1,0 +1,65 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>SnapTrade Connect</title>
+</head>
+<body>
+<div id="screen-login" class="screen active">
+  <div class="card">
+    <div class="logo">
+      <div class="logo-icon">
+        <svg viewBox="0 0 28 28" fill="none">
+          <path d="M7 18C7 13.582 10.582 10 15 10C19.418 10 23 13.582 23 18" stroke="#00C805" stroke-width="2.5" stroke-linecap="round"/>
+          <circle cx="15" cy="20" r="2.5" fill="#00C805"/>
+        </svg>
+      </div>
+      <h1>SnapTrade</h1>
+      <p>Connect your brokerage accounts</p>
+    </div>
+    <div id="login-error" class="error"></div>
+    <button class="btn btn-primary" id="btn-login">Initialize Connection Portal</button>
+  </div>
+</div>
+
+<div id="screen-loading" class="screen">
+  <div class="card card-loading">
+    <div class="spinner"></div>
+    <p id="loading-msg" class="loading-msg">Loading...</p>
+  </div>
+</div>
+
+<div id="screen-connected" class="screen">
+  <div class="card">
+    <div class="user-row">
+      <div class="avatar" id="user-avatar">S</div>
+      <div>
+        <div class="user-name" id="user-name">Connected</div>
+        <div class="user-sub">Personal SnapTrade account &nbsp;·&nbsp; Connection Portal enabled</div>
+      </div>
+    </div>
+    <div id="connections-section">
+      <div class="section-label">Your Connections</div>
+      <div id="connections-list" class="connections-list"></div>
+    </div>
+    <div id="portal-section">
+      <div class="portal-controls">
+        <div id="portal-result" class="portal-result"></div>
+        <div class="portal-buttons">
+          <button class="btn btn-danger" id="btn-disconnect">Disconnect Account</button>
+          <button class="btn btn-outline" id="btn-add-connection">Open Connection Portal</button>
+        </div>
+      </div>
+      <div id="portal-host" class="portal-host" hidden>
+        <iframe id="portal-frame" title="SnapTrade Connection Portal" class="portal-frame" referrerpolicy="no-referrer" allow="clipboard-read; clipboard-write"></iframe>
+      </div>
+    </div>
+    <div class="status-bar status-bottom-gap">
+      <span class="dot"></span>
+      <span id="token-status">Ready to launch Connection Portal</span>
+    </div>
+  </div>
+</div>
+</body>
+</html>
