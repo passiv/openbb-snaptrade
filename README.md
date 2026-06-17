@@ -2,6 +2,8 @@
 
 SnapTrade backend for OpenBB Workspace. Custom widgets (Connection Portal, Portfolio Overview, Activity, Reference Data, Market Data, Order Ticket) backed by the SnapTrade REST API, plus an embedded MCP server that lets the Workspace AI agent query the same data on the user's behalf.
 
+https://github.com/user-attachments/assets/5193fb0a-7640-44b0-8731-85b2d8ff2e37
+
 ## Developer Quick Start
 
 `docker compose up -d` runs three containers:
