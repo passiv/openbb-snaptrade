@@ -1,11 +1,4 @@
-{
-	auto_https disable_redirects
-	local_certs
-}
-
-localhost:8443 {
-	tls internal
-
+openbb.snaptrade.com {
 	reverse_proxy {
 		dynamic a {
 			name app

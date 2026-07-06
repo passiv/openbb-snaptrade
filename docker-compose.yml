@@ -15,6 +15,7 @@ services:
       SNAPTRADE_STORE_ENCRYPTION_KEY_B64: "${SNAPTRADE_STORE_ENCRYPTION_KEY_B64:?Set SNAPTRADE_STORE_ENCRYPTION_KEY_B64}"
       SNAPTRADE_CONNECTION_REDIRECT: "${SNAPTRADE_CONNECTION_REDIRECT:?Set SNAPTRADE_CONNECTION_REDIRECT}"
       SNAPTRADE_DEBUG_HEADERS: "${SNAPTRADE_DEBUG_HEADERS:-0}"
+      SNAPTRADE_MCP_ALLOW_LOOPBACK: "${SNAPTRADE_MCP_ALLOW_LOOPBACK:-1}"
     depends_on:
       - redis
 
@@ -22,7 +23,8 @@ services:
     image: caddy:2-alpine
     restart: unless-stopped
     ports:
-      - "8443:8443"
+      - "80:80"
+      - "443:443"
     volumes:
       - ./Caddyfile:/etc/caddy/Caddyfile:ro
       - caddy_data:/data
