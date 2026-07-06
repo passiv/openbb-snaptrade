@@ -10,9 +10,7 @@
       "w": 40,
       "h": 24
     },
-    "source": [
-      "SnapTrade"
-    ],
+    "source": ["SnapTrade"],
     "storage": {
       "mcpUrl": "mcp"
     }
@@ -28,27 +26,10 @@
       "w": 40,
       "h": 24
     },
-    "source": [
-      "SnapTrade"
-    ],
+    "source": ["SnapTrade"],
     "storage": {
       "mcpUrl": "mcp"
     }
-  },
-  "snaptrade_order_ticket": {
-    "name": "Order Ticket",
-    "description": "Place equity or crypto orders. Form fields adapt to the selected account's brokerage capabilities and asset type.",
-    "endpoint": "trade",
-    "type": "iframe",
-    "category": "Brokerage",
-    "subCategory": "Trading",
-    "gridData": {
-      "w": 24,
-      "h": 28
-    },
-    "source": [
-      "SnapTrade"
-    ]
   },
   "snaptrade_orders": {
     "name": "Orders",
@@ -61,9 +42,7 @@
       "w": 40,
       "h": 18
     },
-    "source": [
-      "SnapTrade"
-    ],
+    "source": ["SnapTrade"],
     "params": [
       {
         "type": "endpoint",
@@ -272,9 +251,7 @@
       "w": 40,
       "h": 18
     },
-    "source": [
-      "SnapTrade"
-    ],
+    "source": ["SnapTrade"],
     "params": [
       {
         "type": "date",
@@ -463,9 +440,7 @@
       "w": 40,
       "h": 18
     },
-    "source": [
-      "SnapTrade"
-    ],
+    "source": ["SnapTrade"],
     "params": [
       {
         "type": "endpoint",
@@ -486,18 +461,9 @@
           "enabled": true,
           "chartType": "line",
           "cellRangeCols": {
-            "line": [
-              "date",
-              "amount"
-            ],
-            "area": [
-              "date",
-              "amount"
-            ],
-            "column": [
-              "date",
-              "amount"
-            ]
+            "line": ["date", "amount"],
+            "area": ["date", "amount"],
+            "column": ["date", "amount"]
           },
           "chartNavigatorEnabled": true
         },
@@ -545,9 +511,7 @@
       "w": 40,
       "h": 16
     },
-    "source": [
-      "SnapTrade"
-    ],
+    "source": ["SnapTrade"],
     "data": {
       "table": {
         "showAll": true,
@@ -617,9 +581,7 @@
       "w": 40,
       "h": 16
     },
-    "source": [
-      "SnapTrade"
-    ],
+    "source": ["SnapTrade"],
     "runButton": false,
     "params": [
       {
@@ -701,9 +663,7 @@
       "w": 40,
       "h": 18
     },
-    "source": [
-      "SnapTrade"
-    ],
+    "source": ["SnapTrade"],
     "params": [
       {
         "type": "endpoint",
@@ -767,9 +727,7 @@
       "w": 40,
       "h": 16
     },
-    "source": [
-      "SnapTrade"
-    ],
+    "source": ["SnapTrade"],
     "data": {
       "table": {
         "showAll": true,
@@ -840,9 +798,7 @@
       "w": 24,
       "h": 16
     },
-    "source": [
-      "SnapTrade"
-    ],
+    "source": ["SnapTrade"],
     "data": {
       "table": {
         "showAll": true,
@@ -889,9 +845,7 @@
       "w": 16,
       "h": 16
     },
-    "source": [
-      "SnapTrade"
-    ],
+    "source": ["SnapTrade"],
     "data": {
       "table": {
         "showAll": true,
@@ -932,9 +886,7 @@
       "w": 40,
       "h": 18
     },
-    "source": [
-      "SnapTrade"
-    ],
+    "source": ["SnapTrade"],
     "params": [
       {
         "type": "text",
@@ -1012,9 +964,7 @@
       "w": 40,
       "h": 16
     },
-    "source": [
-      "SnapTrade"
-    ],
+    "source": ["SnapTrade"],
     "runButton": true,
     "params": [
       {

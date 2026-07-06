@@ -121,26 +121,6 @@
             "h": 18
           }
         ]
-      },
-      "trade": {
-        "id": "trade",
-        "name": "Trade",
-        "layout": [
-          {
-            "i": "snaptrade_order_ticket",
-            "x": 0,
-            "y": 0,
-            "w": 24,
-            "h": 28
-          },
-          {
-            "i": "snaptrade_orders",
-            "x": 24,
-            "y": 0,
-            "w": 16,
-            "h": 28
-          }
-        ]
       }
     },
     "groups": [],
