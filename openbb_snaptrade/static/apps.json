@@ -9,14 +9,14 @@
     "tabs": {
       "connection-portal": {
         "id": "connection-portal",
-        "name": "Connection Portal",
+        "name": "Connections",
         "layout": [
           {
             "i": "snaptrade_connection_portal",
             "x": 0,
             "y": 0,
             "w": 40,
-            "h": 12
+            "h": 24
           },
           {
             "i": "portfolio_overview",
@@ -125,7 +125,7 @@
     },
     "groups": [],
     "prompts": [
-      "Connect a new brokerage account with SnapTrade Connection Portal.",
+      "Connect a new brokerage account with SnapTrade.",
       "Show all connected brokerages and their status.",
       "Reconnect disabled broker connections."
     ]

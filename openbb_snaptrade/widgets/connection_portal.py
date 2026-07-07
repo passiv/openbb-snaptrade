@@ -200,7 +200,7 @@ def register(app: FastAPI) -> None:
                 immediate_redirect=True,
                 custom_redirect=custom_redirect,
                 reconnect=reconnect_id,
-                connection_type="trade-if-available",
+                connection_type="read",
                 connection_portal_version="v4",
             )
         except Exception as exc:

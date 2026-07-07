@@ -1,7 +1,7 @@
 {
   "snaptrade_connection_portal": {
-    "name": "SnapTrade Connection Portal",
-    "description": "Add brokerage connections through SnapTrade Connection Portal and manage existing connections.",
+    "name": "Manage Connections",
+    "description": "Connect brokerage accounts and manage existing connections.",
     "endpoint": "widget",
     "type": "iframe",
     "category": "Brokerage",
