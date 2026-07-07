@@ -22,6 +22,17 @@ function _shouldSkipCache() {
   return params.has('skip-cache') || params.get('skip-cache') === '1';
 }
 
+// Drop cached responses for the given path prefixes so the next fetch hits the
+// network. Call after a mutation (connect/delete) since the list endpoints are
+// cached for _CACHE_TTL_MS and would otherwise serve a stale list.
+function _invalidateCache(pathPrefixes) {
+  for (const key of Array.from(_requestCache.keys())) {
+    if (pathPrefixes.some((prefix) => key.startsWith(prefix + '::'))) {
+      _requestCache.delete(key);
+    }
+  }
+}
+
 // Capture console logs for debugging
 window.__portalLogs__ = [];
 const originalLog = console.log;
@@ -449,6 +460,9 @@ async function loadConnections() {
     return;
   }
 
+  const spinner = document.getElementById('connections-spinner');
+  if (spinner) spinner.hidden = false;
+
   try {
     const { response, data } = await apiJson('/snaptrade/connections');
     if (!response.ok || !Array.isArray(data)) {
@@ -478,6 +492,8 @@ async function loadConnections() {
   } catch (_e) {
     renderConnections([]);
     publishConnectionsData([], [], []);
+  } finally {
+    if (spinner) spinner.hidden = true;
   }
 }
 
@@ -668,15 +684,43 @@ function renderConnections(connections, accounts, summaries) {
     deleteButton.type = 'button';
     deleteButton.textContent = 'Delete';
 
+    const renderDefaultActions = () => {
+      actions.innerHTML = '';
+      actions.appendChild(reconnectButton);
+      actions.appendChild(deleteButton);
+    };
+
     reconnectButton.addEventListener('click', () => {
       void reconnectConnection(connectionId);
     });
     deleteButton.addEventListener('click', () => {
-      void deleteConnection(connectionId);
+      actions.innerHTML = '';
+
+      const confirmLabel = document.createElement('span');
+      confirmLabel.className = 'delete-confirm-label';
+      confirmLabel.textContent = 'Delete?';
+
+      const confirmButton = document.createElement('button');
+      confirmButton.className = 'btn-delete';
+      confirmButton.type = 'button';
+      confirmButton.textContent = 'Confirm';
+
+      const cancelButton = document.createElement('button');
+      cancelButton.className = 'btn-reconnect';
+      cancelButton.type = 'button';
+      cancelButton.textContent = 'Cancel';
+
+      confirmButton.addEventListener('click', () => {
+        void deleteConnection(connectionId);
+      });
+      cancelButton.addEventListener('click', renderDefaultActions);
+
+      actions.appendChild(confirmLabel);
+      actions.appendChild(confirmButton);
+      actions.appendChild(cancelButton);
     });
 
-    actions.appendChild(reconnectButton);
-    actions.appendChild(deleteButton);
+    renderDefaultActions();
 
     card.appendChild(info);
     card.appendChild(actions);
@@ -703,10 +747,6 @@ function reconnectConnection(connectionId) {
 }
 
 function deleteConnection(connectionId) {
-  if (!confirm('Delete this connection? This action cannot be undone.')) {
-    showScreen('connected');
-    return;
-  }
   loading('Deleting connection...');
   (async () => {
     try {
@@ -715,7 +755,9 @@ function deleteConnection(connectionId) {
       });
       if (response.ok) {
         setPortalResult('success', 'Connection deleted.');
-        setTimeout(() => { void checkStatus(); }, 1000);
+        // Bust the stale cached list so the removed connection disappears immediately.
+        _invalidateCache(['/snaptrade/connections', '/snaptrade/accounts', '/snaptrade/account-summaries']);
+        void checkStatus();
       } else {
         setPortalResult('error', readErrorMessage(data, 'Failed to delete connection'));
       }
@@ -741,7 +783,6 @@ async function checkStatus() {
   CURRENT_CONTEXT = data;
   document.getElementById('user-name').textContent = 'OpenBB User';
   document.getElementById('user-avatar').textContent = 'W';
-  document.getElementById('token-status').textContent = 'Connection portal ready';
   await loadConnections();
   showScreen('connected');
 }
@@ -774,7 +815,31 @@ function attachHandlers() {
       void checkStatus();
       return;
     }
-    
+
+    // SnapTrade's v4 portal also posts the outcome directly (bare string like
+    // 'SUCCESS'/'ABANDONED'/'ERROR', or an object with .status) rather than
+    // relying on the same-origin redirect. Normalize and handle it so the modal
+    // closes and the connections list refreshes as soon as a connection lands.
+    const rawStatus = (typeof event.data === 'string')
+      ? event.data
+      : (event.data && typeof event.data === 'object' ? event.data.status : null);
+    if (typeof rawStatus === 'string') {
+      const normalized = rawStatus.toUpperCase();
+      if (normalized === 'SUCCESS' || normalized === 'ABANDONED' || normalized.startsWith('ERROR')) {
+        console.log('[PORTAL] Portal outcome message:', normalized);
+        const params = new URLSearchParams();
+        params.set('status', normalized.startsWith('ERROR') ? 'ERROR' : normalized);
+        applyPortalStatusParams(params);
+        hidePortalInWidget();
+        if (normalized === 'SUCCESS') {
+          // Bust the stale cached list so the new connection shows immediately.
+          _invalidateCache(['/snaptrade/connections', '/snaptrade/accounts', '/snaptrade/account-summaries']);
+        }
+        void checkStatus();
+        return;
+      }
+    }
+
     // Handle status from iframe redirect (if it ever happens)
     if (event.data && event.data.type === 'portal-status' && event.data.status) {
       console.log('[PORTAL] Portal status from iframe:', event.data.status);
@@ -794,6 +859,22 @@ function attachHandlers() {
       void handlePortalFrameLoad();
     });
   }
+
+  const closePortalModal = () => {
+    hidePortalInWidget();
+    void checkStatus();
+  };
+
+  const modalBackdrop = document.getElementById('portal-modal-backdrop');
+  if (modalBackdrop) {
+    modalBackdrop.addEventListener('click', closePortalModal);
+  }
+
+  document.addEventListener('keydown', (event) => {
+    if (event.key !== 'Escape') return;
+    const host = document.getElementById('portal-host');
+    if (host && !host.hidden) closePortalModal();
+  });
 
   document.getElementById('btn-login').addEventListener('click', () => {
     loading('Initializing Workspace context...');

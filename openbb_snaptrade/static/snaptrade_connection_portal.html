@@ -19,7 +19,7 @@
       <p>Connect your brokerage accounts</p>
     </div>
     <div id="login-error" class="error"></div>
-    <button class="btn btn-primary" id="btn-login">Initialize Connection Portal</button>
+    <button class="btn btn-primary" id="btn-login">Get Started</button>
   </div>
 </div>
 
@@ -36,11 +36,14 @@
       <div class="avatar" id="user-avatar">S</div>
       <div>
         <div class="user-name" id="user-name">Connected</div>
-        <div class="user-sub">Personal SnapTrade account &nbsp;·&nbsp; Connection Portal enabled</div>
+        <div class="user-sub">Personal SnapTrade account</div>
       </div>
     </div>
     <div id="connections-section">
-      <div class="section-label">Your Connections</div>
+      <div class="section-label">
+        <span>Your Connections</span>
+        <span id="connections-spinner" class="mini-spinner" role="status" aria-label="Loading connections" hidden></span>
+      </div>
       <div id="connections-list" class="connections-list"></div>
     </div>
     <div id="portal-section">
@@ -48,16 +51,15 @@
         <div id="portal-result" class="portal-result"></div>
         <div class="portal-buttons">
           <button class="btn btn-danger" id="btn-disconnect">Disconnect Account</button>
-          <button class="btn btn-outline" id="btn-add-connection">Open Connection Portal</button>
+          <button class="btn btn-outline" id="btn-add-connection">Connect an Account</button>
         </div>
       </div>
       <div id="portal-host" class="portal-host" hidden>
-        <iframe id="portal-frame" title="SnapTrade Connection Portal" class="portal-frame" referrerpolicy="no-referrer" allow="clipboard-read; clipboard-write"></iframe>
+        <div id="portal-modal-backdrop" class="portal-modal-backdrop"></div>
+        <div class="portal-modal-dialog" role="dialog" aria-modal="true" aria-label="Connect your brokerage account">
+          <iframe id="portal-frame" title="Connect your brokerage account" class="portal-frame" referrerpolicy="no-referrer" allow="clipboard-read; clipboard-write"></iframe>
+        </div>
       </div>
-    </div>
-    <div class="status-bar status-bottom-gap">
-      <span class="dot"></span>
-      <span id="token-status">Ready to launch Connection Portal</span>
     </div>
   </div>
 </div>
