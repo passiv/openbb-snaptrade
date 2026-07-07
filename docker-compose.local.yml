@@ -1,0 +1,16 @@
+# Local development overrides. Usage:
+#   docker compose -f docker-compose.yml -f docker-compose.local.yml up -d --build
+# Restores the localhost:8443 self-signed setup and live-mounts static assets
+# so CSS/JS/HTML edits appear on browser refresh without a rebuild.
+services:
+  app:
+    volumes:
+      - ./openbb_snaptrade/static:/app/openbb_snaptrade/static:ro
+
+  tls-proxy:
+    ports: !override
+      - "8443:8443"
+    volumes: !override
+      - ./Caddyfile.local:/etc/caddy/Caddyfile:ro
+      - caddy_data:/data
+      - caddy_config:/config
