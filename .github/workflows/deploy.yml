@@ -1,0 +1,107 @@
+name: Deploy
+
+on:
+  push:
+    branches: [main]
+  workflow_dispatch:
+
+permissions:
+  contents: read
+  id-token: write
+
+env:
+  AWS_REGION: ca-central-1
+  ECR_REPOSITORY: openbb-snaptrade
+  ECS_CLUSTER: prod
+  ECS_SERVICE: openbb-snaptrade
+  ECS_TASK_DEFINITION_FAMILY: openbb-snaptrade
+  CONTAINER_NAME: openbb-snaptrade
+
+jobs:
+  deploy:
+    name: Build and deploy
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Check out
+        uses: actions/checkout@v6.0.2
+
+      - name: Configure AWS credentials
+        uses: aws-actions/configure-aws-credentials@v6.1.1
+        with:
+          role-to-assume: ${{ secrets.AWS_ROLE_ARN }}
+          aws-region: ${{ env.AWS_REGION }}
+
+      - name: Log in to Amazon ECR
+        id: ecr
+        uses: aws-actions/amazon-ecr-login@v2
+
+      - name: Set up Docker Buildx
+        uses: docker/setup-buildx-action@v4.0.0
+
+      - name: Collect build metadata
+        id: metadata
+        run: echo "deployed_at=$(date -u +%Y-%m-%dT%H:%M:%SZ)" >> "$GITHUB_OUTPUT"
+
+      - name: Build and push image
+        id: image
+        env:
+          ECR_REGISTRY: ${{ steps.ecr.outputs.registry }}
+          IMAGE_TAG: ${{ github.sha }}
+        run: |
+          IMAGE="$ECR_REGISTRY/$ECR_REPOSITORY:$IMAGE_TAG"
+          CACHE_IMAGE="$ECR_REGISTRY/$ECR_REPOSITORY:buildcache"
+          docker buildx build \
+            --file Dockerfile \
+            --tag "$IMAGE" \
+            --cache-from "type=registry,ref=$CACHE_IMAGE" \
+            --cache-to "type=registry,ref=$CACHE_IMAGE,mode=max" \
+            --push \
+            .
+          echo "image=$IMAGE" >> "$GITHUB_OUTPUT"
+
+      - name: Fetch task definition
+        run: |
+          aws ecs describe-task-definition \
+            --task-definition "$ECS_TASK_DEFINITION_FAMILY" \
+            --query taskDefinition \
+            > task-definition.raw.json
+          jq --arg family "$ECS_TASK_DEFINITION_FAMILY" '
+          .family = $family |
+          .cpu = "512" |
+          .memory = "1024" |
+          .containerDefinitions[0].stopTimeout = 5 |
+          del(
+            .taskDefinitionArn,
+            .revision,
+            .status,
+            .requiresAttributes,
+            .compatibilities,
+            .registeredAt,
+            .registeredBy
+          )' task-definition.raw.json > task-definition.json
+
+      - name: Render task definition
+        id: task_def
+        uses: aws-actions/amazon-ecs-render-task-definition@v1
+        with:
+          task-definition: task-definition.json
+          container-name: ${{ env.CONTAINER_NAME }}
+          image: ${{ steps.image.outputs.image }}
+          environment-variables: |
+            SNAPTRADE_STATE_BACKEND=memory
+            SNAPTRADE_CONNECTION_REDIRECT=https://openbb.snaptrade.com/widget
+            SNAPTRADE_MCP_ALLOW_LOOPBACK=0
+            SNAPTRADE_DEBUG_HEADERS=0
+            OPENBB_SNAPTRADE_GIT_SHA=${{ github.sha }}
+            OPENBB_SNAPTRADE_DEPLOYED_AT=${{ steps.metadata.outputs.deployed_at }}
+          secrets: |
+            SNAPTRADE_STORE_ENCRYPTION_KEY_B64=arn:aws:ssm:ca-central-1:750100498777:parameter/prod/openbb-snaptrade/store-encryption-key
+
+      - name: Deploy task definition
+        uses: aws-actions/amazon-ecs-deploy-task-definition@v2
+        with:
+          task-definition: ${{ steps.task_def.outputs.task-definition }}
+          service: ${{ env.ECS_SERVICE }}
+          cluster: ${{ env.ECS_CLUSTER }}
+          wait-for-service-stability: true
