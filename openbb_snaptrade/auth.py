@@ -5,11 +5,12 @@ import time
 from hashlib import sha256
 
 from pywry.state.auth import generate_session_token, validate_session_token
+from pywry.state.memory import MemorySessionStore
 from pywry.state.redis import RedisSessionStore
 
-from .config import REDIS_URL, STORE_ENCRYPTION_KEY_B64
+from .config import REDIS_URL, STATE_BACKEND, STORE_ENCRYPTION_KEY_B64
 from .context import WorkspaceContext, email_hash
-from .user_store import UserMapStore
+from .user_store import MemoryUserMapStore, UserMapStore
 
 
 SESSION_TTL_SECONDS = 15 * 60
@@ -29,16 +30,23 @@ def looks_like_token(value: str) -> bool:
 
 class WorkspaceSessionManager:
     def __init__(self) -> None:
-        self._store = RedisSessionStore(
-            redis_url=REDIS_URL,
-            prefix=SESSION_PREFIX,
-            default_ttl=SESSION_TTL_SECONDS,
-        )
-        self._cipher = UserMapStore(
-            redis_url=REDIS_URL,
-            encryption_key_b64=STORE_ENCRYPTION_KEY_B64,
-            key_prefix=SESSION_PREFIX + ":cipher",
-        )
+        if STATE_BACKEND == "memory":
+            self._store = MemorySessionStore()
+            self._cipher = MemoryUserMapStore(
+                encryption_key_b64=STORE_ENCRYPTION_KEY_B64,
+                key_prefix=SESSION_PREFIX + ":cipher",
+            )
+        else:
+            self._store = RedisSessionStore(
+                redis_url=REDIS_URL,
+                prefix=SESSION_PREFIX,
+                default_ttl=SESSION_TTL_SECONDS,
+            )
+            self._cipher = UserMapStore(
+                redis_url=REDIS_URL,
+                encryption_key_b64=STORE_ENCRYPTION_KEY_B64,
+                key_prefix=SESSION_PREFIX + ":cipher",
+            )
 
     @staticmethod
     def _user_id_for(email: str) -> str:

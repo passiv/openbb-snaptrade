@@ -53,6 +53,11 @@ SNAPTRADE_API_BASE = "https://api.snaptrade.com"
 
 REDIS_URL = os.environ.get("PYWRY_DEPLOY__REDIS_URL", "redis://localhost:6379/0")
 
+# "redis" (default, matches upstream) or "memory" (single-instance deployments;
+# no Redis anywhere — sessions and user mappings live in process memory and are
+# lost on restart, which just means users reload the dashboard).
+STATE_BACKEND = os.environ.get("SNAPTRADE_STATE_BACKEND", "redis").strip().lower()
+
 STORE_ENCRYPTION_KEY_B64 = os.environ.get("SNAPTRADE_STORE_ENCRYPTION_KEY_B64", "").strip()
 if not STORE_ENCRYPTION_KEY_B64:
     derived_key = sha256(str(PROJECT_ROOT).encode("utf-8")).digest()

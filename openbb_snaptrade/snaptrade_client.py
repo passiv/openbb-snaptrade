@@ -4,12 +4,15 @@ from hashlib import sha256
 from fastapi.responses import JSONResponse
 from snaptrade_client import SnapTrade
 
-from .config import REDIS_URL, STORE_ENCRYPTION_KEY_B64
+from .config import REDIS_URL, STATE_BACKEND, STORE_ENCRYPTION_KEY_B64
 from .context import WorkspaceContext
-from .user_store import UserMapping, UserMapStore
+from .user_store import MemoryUserMapStore, UserMapping, UserMapStore
 
 
-USER_STORE = UserMapStore(redis_url=REDIS_URL, encryption_key_b64=STORE_ENCRYPTION_KEY_B64)
+if STATE_BACKEND == "memory":
+    USER_STORE = MemoryUserMapStore(encryption_key_b64=STORE_ENCRYPTION_KEY_B64)
+else:
+    USER_STORE = UserMapStore(redis_url=REDIS_URL, encryption_key_b64=STORE_ENCRYPTION_KEY_B64)
 
 
 def is_personal_client(context: WorkspaceContext) -> bool:

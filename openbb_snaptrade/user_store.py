@@ -115,3 +115,30 @@ class UserMapStore:
             "updated_at": now,
         }
         self.redis.set(key, self._encrypt(json.dumps(payload, separators=(",", ":"))))
+
+
+class _DictKV:
+    """Process-local stand-in for the Redis client (only get/set are used)."""
+
+    def __init__(self) -> None:
+        self._data: dict[str, str] = {}
+
+    def get(self, key: str) -> str | None:
+        return self._data.get(key)
+
+    def set(self, key: str, value: str) -> None:
+        self._data[key] = value
+
+
+class MemoryUserMapStore(UserMapStore):
+    """UserMapStore backed by process memory instead of Redis.
+
+    For SNAPTRADE_STATE_BACKEND=memory single-instance deployments. Mappings
+    are lost on restart — acceptable for personal-tier client IDs, which skip
+    per-user SnapTrade registration and store nothing durable.
+    """
+
+    def __init__(self, encryption_key_b64: str, key_prefix: str = "snaptrade:user_map") -> None:
+        self.redis = _DictKV()
+        self.key_prefix = key_prefix
+        self.key = self._decode_key(encryption_key_b64)
