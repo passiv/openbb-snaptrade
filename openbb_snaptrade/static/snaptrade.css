@@ -445,14 +445,16 @@ html,body{
   backdrop-filter:blur(2px);
 }
 
+/* Mirrors the antd modal snaptrade-react wraps the portal in: 450px wide,
+   20px/24px content padding, leaving a 600px-tall frame. */
 .portal-modal-dialog{
   position:relative;
-  width:min(480px,100%);
-  height:min(680px,100%);
+  width:min(450px,100%);
+  height:min(640px,100%);
+  padding:20px 24px;
   display:flex;
-  background:#f8f9fc;
-  border:1px solid #334767;
-  border-radius:12px;
+  background:#fff;
+  border-radius:8px;
   box-shadow:0 24px 64px rgba(0,0,0,.45);
   overflow:hidden;
 }
