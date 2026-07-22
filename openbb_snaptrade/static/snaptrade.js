@@ -376,24 +376,34 @@ function workspaceHeaders() {
   return headers;
 }
 
+// Only GETs are safe to cache or de-duplicate. POST/DELETE responses are
+// one-shot: replaying a cached /snaptrade/portal link, for example, reopens a
+// login link SnapTrade has already consumed and the portal renders
+// "Unexpected Error".
+function _isCacheableRequest(options) {
+  const method = (options && options.method) || 'GET';
+  return String(method).toUpperCase() === 'GET';
+}
+
 async function apiJson(path, options) {
   const url = API_BASE ? API_BASE + path : path;
   const cacheKey = _getCacheKey(path, options);
   const skipCache = _shouldSkipCache();
-  
+  const cacheable = _isCacheableRequest(options);
+
   // Check if request is already in flight
-  if (_inFlightRequests.has(cacheKey)) {
+  if (cacheable && _inFlightRequests.has(cacheKey)) {
     return _inFlightRequests.get(cacheKey);
   }
-  
+
   // Check if cached response is still valid
-  if (!skipCache && _requestCache.has(cacheKey)) {
+  if (cacheable && !skipCache && _requestCache.has(cacheKey)) {
     const cacheEntry = _requestCache.get(cacheKey);
     if (_isCacheValid(cacheEntry)) {
       return { response: cacheEntry.response, data: cacheEntry.data };
     }
   }
-  
+
   // Create fetch promise
   const fetchPromise = (async () => {
     const mergedHeaders = Object.assign({}, workspaceHeaders(), (options && options.headers) || {});
@@ -406,7 +416,7 @@ async function apiJson(path, options) {
       const data = await readJsonSafe(response);
       
       // Cache successful responses
-      if (response.ok) {
+      if (cacheable && response.ok) {
         _requestCache.set(cacheKey, {
           response: { ok: true, status: response.status },
           data: data,
@@ -422,10 +432,12 @@ async function apiJson(path, options) {
       _inFlightRequests.delete(cacheKey);
     }
   })();
-  
+
   // Track in-flight request
-  _inFlightRequests.set(cacheKey, fetchPromise);
-  
+  if (cacheable) {
+    _inFlightRequests.set(cacheKey, fetchPromise);
+  }
+
   return fetchPromise;
 }
 
