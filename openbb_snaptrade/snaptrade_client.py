@@ -1,5 +1,4 @@
 import asyncio
-from hashlib import sha256
 
 from fastapi.responses import JSONResponse
 from snaptrade_client import SnapTrade
@@ -9,19 +8,49 @@ from .context import WorkspaceContext
 from .user_store import MemoryUserMapStore, UserMapping, UserMapStore
 
 
+# USER_STORE is retained purely as a Redis-backed cache/cipher (broker-instrument
+# caching in reference_data, session encryption in auth). Per-user SnapTrade
+# mappings are no longer stored: this integration only supports personal keys,
+# which authenticate with the client_id/consumer_key directly and need no
+# per-user registration.
 if STATE_BACKEND == "memory":
     USER_STORE = MemoryUserMapStore(encryption_key_b64=STORE_ENCRYPTION_KEY_B64)
 else:
     USER_STORE = UserMapStore(redis_url=REDIS_URL, encryption_key_b64=STORE_ENCRYPTION_KEY_B64)
 
 
+PERSONAL_CLIENT_PREFIX = "PERS-"
+
+NON_PERSONAL_CLIENT_ERROR = {
+    "error": "personal_key_required",
+    "detail": (
+        "This integration only supports personal SnapTrade keys. Generate a "
+        "personal client ID and consumer key from the SnapTrade dashboard, then "
+        "reconfigure the integration with those credentials."
+    ),
+}
+
+
+class NonPersonalClientError(Exception):
+    """Raised when a non-personal SnapTrade client_id is used.
+
+    Personal keys are the only supported configuration; every other client_id is
+    rejected with a clear error (see NON_PERSONAL_CLIENT_ERROR).
+    """
+
+
 def is_personal_client(context: WorkspaceContext) -> bool:
-    return context.client_id.upper().startswith("PERS-")
+    return context.client_id.upper().startswith(PERSONAL_CLIENT_PREFIX)
 
 
-def build_snaptrade_user_id(context: WorkspaceContext) -> str:
-    digest = sha256(f"{context.client_id}:{context.openbb_user_id}".encode("utf-8")).hexdigest()
-    return f"obb-{digest[:24]}"
+def require_personal_client(context: WorkspaceContext) -> None:
+    """Raise NonPersonalClientError unless the client_id is a personal key."""
+    if not is_personal_client(context):
+        raise NonPersonalClientError()
+
+
+def non_personal_client_response() -> JSONResponse:
+    return JSONResponse(NON_PERSONAL_CLIENT_ERROR, status_code=403)
 
 
 def snaptrade_client(context: WorkspaceContext) -> SnapTrade:
@@ -32,107 +61,28 @@ def snaptrade_client(context: WorkspaceContext) -> SnapTrade:
 
 
 def snaptrade_credentials(context: WorkspaceContext, mapping: UserMapping) -> tuple[str, str]:
-    if is_personal_client(context):
-        return "", ""
-    return mapping.snaptrade_user_id, mapping.snaptrade_user_secret
-
-
-def missing_user_secret_response() -> JSONResponse:
-    return JSONResponse(
-        {
-            "error": "missing_user_secret",
-            "detail": "No stored SnapTrade userSecret for this Workspace client/user mapping.",
-        },
-        status_code=409,
-    )
-
-
-async def _register_or_reset_user_secret(context: WorkspaceContext, snaptrade_user_id: str) -> str:
-    client = snaptrade_client(context)
-
-    try:
-        register_response = await asyncio.to_thread(
-            client.authentication.register_snap_trade_user,
-            user_id=snaptrade_user_id,
-        )
-        register_body = getattr(register_response, "body", {}) or {}
-        if isinstance(register_body, dict):
-            user_secret = register_body.get("userSecret", "")
-            if user_secret:
-                return user_secret
-    except Exception:
-        pass
-
-    try:
-        await asyncio.to_thread(
-            client.authentication.delete_snap_trade_user,
-            user_id=snaptrade_user_id,
-        )
-    except Exception:
-        pass
-
-    try:
-        register_response = await asyncio.to_thread(
-            client.authentication.register_snap_trade_user,
-            user_id=snaptrade_user_id,
-        )
-        register_body = getattr(register_response, "body", {}) or {}
-        if isinstance(register_body, dict):
-            user_secret = register_body.get("userSecret", "")
-            if user_secret:
-                return user_secret
-    except Exception:
-        return ""
-
-    return ""
+    # Personal keys authenticate with the client_id/consumer_key alone; the SDK
+    # is called with empty user credentials.
+    return "", ""
 
 
 async def ensure_mapping(context: WorkspaceContext) -> UserMapping:
-    if is_personal_client(context):
-        return UserMapping(
-            client_id=context.client_id,
-            openbb_user_id=context.openbb_user_id,
-            snaptrade_user_id="",
-            snaptrade_user_secret="",
-        )
+    """Validate the client is a personal key and return an empty mapping.
 
-    existing = USER_STORE.get(context.client_id, context.openbb_user_id)
-    if existing and existing.snaptrade_user_secret:
-        return existing
-
-    candidate_user_ids: list[str] = []
-    if existing and existing.snaptrade_user_id:
-        candidate_user_ids.append(existing.snaptrade_user_id)
-
-    derived_user_id = build_snaptrade_user_id(context)
-    if derived_user_id not in candidate_user_ids:
-        candidate_user_ids.append(derived_user_id)
-
-    for snaptrade_user_id in candidate_user_ids:
-        user_secret = await _register_or_reset_user_secret(context, snaptrade_user_id)
-        if not user_secret:
-            continue
-        mapping = UserMapping(
-            client_id=context.client_id,
-            openbb_user_id=context.openbb_user_id,
-            snaptrade_user_id=snaptrade_user_id,
-            snaptrade_user_secret=user_secret,
-        )
-        USER_STORE.upsert(mapping)
-        return mapping
-
+    Personal keys need no per-user SnapTrade registration, so there is nothing to
+    persist. Non-personal keys are rejected with NonPersonalClientError.
+    """
+    require_personal_client(context)
     return UserMapping(
         client_id=context.client_id,
         openbb_user_id=context.openbb_user_id,
-        snaptrade_user_id=derived_user_id,
+        snaptrade_user_id="",
         snaptrade_user_secret="",
     )
 
 
 async def fetch_connections(context: WorkspaceContext, mapping: UserMapping):
-    if not is_personal_client(context) and not mapping.snaptrade_user_secret:
-        return None, missing_user_secret_response()
-
+    require_personal_client(context)
     user_id, user_secret = snaptrade_credentials(context, mapping)
     client = snaptrade_client(context)
     try:
@@ -152,9 +102,7 @@ async def fetch_connections(context: WorkspaceContext, mapping: UserMapping):
 
 
 async def fetch_accounts(context: WorkspaceContext, mapping: UserMapping):
-    if not is_personal_client(context) and not mapping.snaptrade_user_secret:
-        return None, missing_user_secret_response()
-
+    require_personal_client(context)
     user_id, user_secret = snaptrade_credentials(context, mapping)
     client = snaptrade_client(context)
     try:

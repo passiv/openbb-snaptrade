@@ -56,7 +56,7 @@ Required (compose fails if missing):
 
 | Variable | Purpose |
 |---|---|
-| `SNAPTRADE_STORE_ENCRYPTION_KEY_B64` | Base64-encoded 32-byte key used to AES-256-CBC encrypt every Redis value (SnapTrade `user_id`/`user_secret` plus the per-session credential blob stored inside `UserSession.metadata`). Rotating it invalidates every stored credential and every live session token. |
+| `SNAPTRADE_STORE_ENCRYPTION_KEY_B64` | Base64-encoded 32-byte key used to AES-256-CBC encrypt every Redis value (the per-session credential blob stored inside `UserSession.metadata`, plus cached reference data). Rotating it invalidates every live session token. |
 | `SNAPTRADE_CONNECTION_REDIRECT` | Where SnapTrade's Connection Portal sends the browser back to after the user links a broker. Must point to the `/widget` route on this service.|
 
 Optional:
@@ -75,9 +75,9 @@ This service has no application login and no env-var SnapTrade credentials. Ever
 - `x-openbb-snaptrade-consumer-key`
 - `x-openbb-user` — any stable per-user identifier
 
-Without them every `/snaptrade/*` route returns 404. Each user's SnapTrade `user_id`/`user_secret` is encrypted with `SNAPTRADE_STORE_ENCRYPTION_KEY_B64` and stored in Redis keyed by `sha256(x-openbb-user)`.
+Without them every `/snaptrade/*` route returns 404.
 
-If the supplied client ID starts with `PERS-` (case-insensitive), the app treats it as a personal-tier credential and skips per-user SnapTrade registration. Multi-tenant deployments must use a non-personal client ID.
+**This integration only supports personal SnapTrade keys.** The supplied client ID must start with `PERS-` (case-insensitive). Personal keys authenticate with the client ID / consumer key alone, so there is no per-user SnapTrade registration and no `user_id`/`user_secret` is created or stored. Any non-personal client ID is rejected with a clear `403 personal_key_required` error on every data route.
 
 Put your own access control (Workspace SSO, VPN, IP allowlist, etc.) in front of this service if it's reachable from anywhere untrusted.
 

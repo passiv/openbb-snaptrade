@@ -10,9 +10,11 @@ from mcp.server.transport_security import TransportSecuritySettings
 from .auth import SESSION_MANAGER
 from .context import WorkspaceContext
 from .snaptrade_client import (
+    NON_PERSONAL_CLIENT_ERROR,
     ensure_mapping,
     fetch_accounts,
     fetch_connections,
+    is_personal_client,
 )
 from .widgets.portfolio_overview import (
     _fetch_account_summaries,
@@ -114,6 +116,8 @@ async def list_connections() -> list[dict] | dict:
     ctx = _get_context()
     if not ctx:
         return _no_session_error()
+    if not is_personal_client(ctx):
+        return NON_PERSONAL_CLIENT_ERROR
     mapping = await ensure_mapping(ctx)
     data, err = await fetch_connections(ctx, mapping)
     if err:
@@ -127,6 +131,8 @@ async def list_accounts() -> list[dict] | dict:
     ctx = _get_context()
     if not ctx:
         return _no_session_error()
+    if not is_personal_client(ctx):
+        return NON_PERSONAL_CLIENT_ERROR
     mapping = await ensure_mapping(ctx)
     data, err = await fetch_accounts(ctx, mapping)
     if err:
@@ -140,6 +146,8 @@ async def get_account_summaries() -> list[dict] | dict:
     ctx = _get_context()
     if not ctx:
         return _no_session_error()
+    if not is_personal_client(ctx):
+        return NON_PERSONAL_CLIENT_ERROR
     mapping = await ensure_mapping(ctx)
     accounts, err = await fetch_accounts(ctx, mapping)
     if err:
@@ -154,6 +162,8 @@ async def get_portfolio_exposure() -> dict:
     ctx = _get_context()
     if not ctx:
         return _no_session_error()
+    if not is_personal_client(ctx):
+        return NON_PERSONAL_CLIENT_ERROR
     mapping = await ensure_mapping(ctx)
     accounts, err = await fetch_accounts(ctx, mapping)
     if err:

@@ -6,6 +6,7 @@ from fastapi.staticfiles import StaticFiles
 from pywry.inline import deploy, get_server_app
 
 from .mcp_server import install as install_mcp
+from .snaptrade_client import NonPersonalClientError, non_personal_client_response
 from .widgets import register_widget_modules
 
 
@@ -22,6 +23,10 @@ def build_app():
         route for route in fastapi_app.router.routes if getattr(route, "path", None) not in _DISABLED_BUILTIN_PATHS
     ]
     fastapi_app.mount("/static", StaticFiles(directory=APP_DIR / "static"), name="static")
+
+    @fastapi_app.exception_handler(NonPersonalClientError)
+    async def _handle_non_personal_client(request, exc):
+        return non_personal_client_response()
 
     @fastapi_app.middleware("http")
     async def _allow_private_network(request, call_next):

@@ -7,7 +7,7 @@ from fastapi.responses import JSONResponse
 from ..config import BROKER_INSTRUMENTS_CACHE_PREFIX, BROKER_INSTRUMENTS_CACHE_TTL_SECONDS
 from ..context import resolve_workspace_context
 from ..iframe import not_found_response
-from ..snaptrade_client import USER_STORE, snaptrade_client
+from ..snaptrade_client import USER_STORE, require_personal_client, snaptrade_client
 from ..transforms import (
     flatten_brokerage,
     flatten_broker_instrument,
@@ -25,6 +25,7 @@ def register(app: FastAPI) -> None:
         context = await resolve_workspace_context(request)
         if not context:
             return not_found_response()
+        require_personal_client(context)
 
         client = snaptrade_client(context)
         try:
@@ -47,6 +48,7 @@ def register(app: FastAPI) -> None:
         context = await resolve_workspace_context(request)
         if not context:
             return not_found_response()
+        require_personal_client(context)
 
         query = (request.query_params.get("query") or "").strip()
         if not query:
@@ -75,6 +77,7 @@ def register(app: FastAPI) -> None:
         context = await resolve_workspace_context(request)
         if not context:
             return not_found_response()
+        require_personal_client(context)
 
         client = snaptrade_client(context)
         try:
@@ -97,6 +100,7 @@ def register(app: FastAPI) -> None:
         context = await resolve_workspace_context(request)
         if not context:
             return not_found_response()
+        require_personal_client(context)
 
         client = snaptrade_client(context)
         try:
@@ -119,6 +123,7 @@ def register(app: FastAPI) -> None:
         context = await resolve_workspace_context(request)
         if not context:
             return not_found_response()
+        require_personal_client(context)
 
         client = snaptrade_client(context)
         try:
@@ -141,6 +146,7 @@ def register(app: FastAPI) -> None:
         context = await resolve_workspace_context(request)
         if not context:
             return not_found_response()
+        require_personal_client(context)
 
         client = snaptrade_client(context)
         try:
@@ -171,6 +177,7 @@ def register(app: FastAPI) -> None:
         context = await resolve_workspace_context(request)
         if not context:
             return not_found_response()
+        require_personal_client(context)
 
         client = snaptrade_client(context)
         try:
@@ -201,6 +208,7 @@ def register(app: FastAPI) -> None:
         context = await resolve_workspace_context(request)
         if not context:
             return not_found_response()
+        require_personal_client(context)
 
         slug = (request.query_params.get("slug") or "").strip()
         if not slug:

@@ -15,8 +15,6 @@ from ..iframe import (
 from ..snaptrade_client import (
     ensure_mapping,
     fetch_connections,
-    is_personal_client,
-    missing_user_secret_response,
     snaptrade_client,
     snaptrade_credentials,
 )
@@ -104,20 +102,6 @@ def register(app: FastAPI) -> None:
             return not_found_response()
 
         mapping = await ensure_mapping(context)
-        if not mapping.snaptrade_user_secret:
-            if is_personal_client(context):
-                connections, error_response = await fetch_connections(context, mapping)
-                if error_response:
-                    return error_response
-                return JSONResponse([_trim_connection(c) for c in (connections or [])])
-            return JSONResponse(
-                {
-                    "error": "user_registration_failed",
-                    "detail": "Could not register/load SnapTrade user for this client_id/openbb_user_id mapping.",
-                },
-                status_code=502,
-            )
-
         connections, error_response = await fetch_connections(context, mapping)
         if error_response:
             return error_response
@@ -143,9 +127,6 @@ def register(app: FastAPI) -> None:
             return not_found_response()
 
         mapping = await ensure_mapping(context)
-        if not is_personal_client(context) and not mapping.snaptrade_user_secret:
-            return missing_user_secret_response()
-
         user_id, user_secret = snaptrade_credentials(context, mapping)
         client = snaptrade_client(context)
         try:
@@ -181,9 +162,6 @@ def register(app: FastAPI) -> None:
         broker = payload.get("broker") if isinstance(payload, dict) else None
 
         mapping = await ensure_mapping(context)
-        if not is_personal_client(context) and not mapping.snaptrade_user_secret:
-            return missing_user_secret_response()
-
         user_id, user_secret = snaptrade_credentials(context, mapping)
 
         configured_redirect = os.environ.get("SNAPTRADE_CONNECTION_REDIRECT", "").strip()

@@ -15,8 +15,6 @@ from ..iframe import (
 from ..snaptrade_client import (
     ensure_mapping,
     fetch_accounts,
-    is_personal_client,
-    missing_user_secret_response,
     snaptrade_client,
     snaptrade_credentials,
 )
@@ -361,8 +359,6 @@ def register(app: FastAPI) -> None:
             return error_response
 
         user_id, user_secret = snaptrade_credentials(context, mapping)
-        if not is_personal_client(context) and not user_secret:
-            return missing_user_secret_response()
 
         start_date = (request.query_params.get("startDate") or "").strip()
         end_date = (request.query_params.get("endDate") or "").strip()
@@ -517,9 +513,6 @@ def register(app: FastAPI) -> None:
         symbols_param = ",".join(symbols_list)
 
         mapping = await ensure_mapping(context)
-        if not is_personal_client(context) and not mapping.snaptrade_user_secret:
-            return missing_user_secret_response()
-
         user_id, user_secret = snaptrade_credentials(context, mapping)
         client = snaptrade_client(context)
         try:

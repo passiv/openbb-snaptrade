@@ -15,8 +15,6 @@ from ..snaptrade_client import (
     ensure_mapping,
     fetch_accounts,
     fetch_connections,
-    is_personal_client,
-    missing_user_secret_response,
     snaptrade_client,
     snaptrade_credentials,
 )
@@ -73,8 +71,6 @@ async def _crypto_order(request: Request, place: bool):
         return JSONResponse({"error": "invalid_payload"}, status_code=400)
 
     mapping = await ensure_mapping(context)
-    if not is_personal_client(context) and not mapping.snaptrade_user_secret:
-        return missing_user_secret_response()
     user_id, user_secret = snaptrade_credentials(context, mapping)
     client = snaptrade_client(context)
 
@@ -167,8 +163,6 @@ async def _options_order(request: Request, place: bool):
         )
 
     mapping = await ensure_mapping(context)
-    if not is_personal_client(context) and not mapping.snaptrade_user_secret:
-        return missing_user_secret_response()
     user_id, user_secret = snaptrade_credentials(context, mapping)
     client = snaptrade_client(context)
 
@@ -288,8 +282,6 @@ def register(app: FastAPI) -> None:
             return JSONResponse([])
 
         mapping = await ensure_mapping(context)
-        if not is_personal_client(context) and not mapping.snaptrade_user_secret:
-            return missing_user_secret_response()
         user_id, user_secret = snaptrade_credentials(context, mapping)
         client = snaptrade_client(context)
 
@@ -348,8 +340,6 @@ def register(app: FastAPI) -> None:
             return JSONResponse({"error": "missing_param"}, status_code=400)
 
         mapping = await ensure_mapping(context)
-        if not is_personal_client(context) and not mapping.snaptrade_user_secret:
-            return missing_user_secret_response()
         user_id, user_secret = snaptrade_credentials(context, mapping)
         client = snaptrade_client(context)
 
@@ -426,8 +416,6 @@ def register(app: FastAPI) -> None:
             return JSONResponse({"error": "invalid_payload"}, status_code=400)
 
         mapping = await ensure_mapping(context)
-        if not is_personal_client(context) and not mapping.snaptrade_user_secret:
-            return missing_user_secret_response()
         user_id, user_secret = snaptrade_credentials(context, mapping)
         client = snaptrade_client(context)
 
@@ -481,8 +469,6 @@ def register(app: FastAPI) -> None:
         wait_to_confirm = bool(payload.get("waitToConfirm", True))
 
         mapping = await ensure_mapping(context)
-        if not is_personal_client(context) and not mapping.snaptrade_user_secret:
-            return missing_user_secret_response()
         user_id, user_secret = snaptrade_credentials(context, mapping)
         client = snaptrade_client(context)
 
@@ -550,8 +536,6 @@ def register(app: FastAPI) -> None:
             )
 
         mapping = await ensure_mapping(context)
-        if not is_personal_client(context) and not mapping.snaptrade_user_secret:
-            return missing_user_secret_response()
         user_id, user_secret = snaptrade_credentials(context, mapping)
         client = snaptrade_client(context)
 
@@ -603,8 +587,6 @@ def register(app: FastAPI) -> None:
             return JSONResponse({"error": "missing_param"}, status_code=400)
 
         mapping = await ensure_mapping(context)
-        if not is_personal_client(context) and not mapping.snaptrade_user_secret:
-            return missing_user_secret_response()
         user_id, user_secret = snaptrade_credentials(context, mapping)
         client = snaptrade_client(context)
 

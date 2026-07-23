@@ -9,8 +9,7 @@ from ..context import resolve_workspace_context
 from ..iframe import not_found_response
 from ..snaptrade_client import (
     ensure_mapping,
-    is_personal_client,
-    missing_user_secret_response,
+    require_personal_client,
     snaptrade_client,
     snaptrade_credentials,
 )
@@ -90,13 +89,10 @@ async def _invoke_sdk_operation(
         parameters = {}
 
     user_id, user_secret = snaptrade_credentials(context, mapping)
-    personal = is_personal_client(context)
 
     if "user_id" in parameters and "user_id" not in kwargs:
         kwargs["user_id"] = user_id
     if "user_secret" in parameters and "user_secret" not in kwargs:
-        if not personal and not user_secret:
-            return None, missing_user_secret_response()
         kwargs["user_secret"] = user_secret
 
     try:
@@ -135,6 +131,7 @@ def register(app: FastAPI) -> None:
         context = await resolve_workspace_context(request)
         if not context:
             return not_found_response()
+        require_personal_client(context)
 
         client = snaptrade_client(context)
         return JSONResponse(
@@ -210,6 +207,7 @@ def register(app: FastAPI) -> None:
         context = await resolve_workspace_context(request)
         if not context:
             return not_found_response()
+        require_personal_client(context)
 
         client = snaptrade_client(context)
         try:
